@@ -31,14 +31,30 @@ class Song(db.Model):
     release_date = db.Column(db.Date)
     genre = db.Column(db.String(200))
 
+    def __repr__(self):
+        return f'{self.title} {self.artist} {self.album} {self.release_date} {self.genre}'
 
 
 # Schemas
+class SongSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "title", "artist", "album", "release_date", "genre")
+
+song_schema = SongSchema()
+songs_schema = SongSchema(many=True)
+
 
 
 
 # Resources
+class SongListResource(Resource):
+    def get(self):
+        all_songs = Song.query.all()
+        return songs_schema.dump(all_songs)
 
+    def post(self):
+        pass
 
 
 # Routes
+api.add_resource(SongListResource, '/api/songs')
