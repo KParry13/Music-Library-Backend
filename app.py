@@ -31,9 +31,11 @@ class Song(db.Model):
     album = db.Column(db.String(200), nullable=False)
     release_date = db.Column(db.Date)
     genre = db.Column(db.String(200))
+    likes = db.Column(db.Integer)
+
 
     def __repr__(self):
-        return f'{self.title} {self.artist} {self.album} {self.release_date} {self.genre}'
+        return f'{self.title} {self.artist} {self.album} {self.release_date} {self.genre} {self.likes}'
 
 # Schemas
 class SongSchema(ma.Schema):
@@ -43,9 +45,10 @@ class SongSchema(ma.Schema):
     album = fields.String(required=True)
     release_date = fields.Date()
     genre = fields.String()
+    likes = fields.Integer()
 
     class Meta:
-        fields = ("id", "title", "artist", "album", "release_date", "genre")
+        fields = ("id", "title", "artist", "album", "release_date", "genre", "likes")
         
     @post_load
     def create_song(self, data, **kwargs):
@@ -68,7 +71,8 @@ class SongListResource(Resource):
             db.session.commit()
             return song_schema.dump(new_song), 201
         except ValidationError as err:
-            return err.messages,
+            return err.messages, 400
+    
 
 class SongResource(Resource):
     def get(self, pk):
@@ -92,6 +96,13 @@ class SongResource(Resource):
             song_from_db.release_date=request.json['release_date']
         if 'genre' in request.json:
             song_from_db.genre=request.json['genre']
+        db.session.commit()
+        return song_schema.dump(song_from_db), 200
+    
+    def patch(self, pk):
+        song_from_db = Song.query.get_or_404(pk)
+        if 'likes' in request.json:
+            song_from_db.likes+=request.json['likes']
         db.session.commit()
         return song_schema.dump(song_from_db), 200
 
