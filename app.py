@@ -31,7 +31,7 @@ class Song(db.Model):
     album = db.Column(db.String(200), nullable=False)
     release_date = db.Column(db.Date)
     genre = db.Column(db.String(200))
-    likes = db.Column(db.Integer)
+    likes = db.Column(db.Integer,default=0)
 
 
     def __repr__(self):
@@ -101,11 +101,10 @@ class SongResource(Resource):
     
     def patch(self, pk):
         song_from_db = Song.query.get_or_404(pk)
-        if 'likes' in request.json:
-            song_from_db.likes+=request.json['likes']
+        song_from_db.likes += 1
         db.session.commit()
         return song_schema.dump(song_from_db), 200
-
+        
 # Routes
 api.add_resource(SongListResource, '/api/songs')
 api.add_resource(SongResource, '/api/songs/<int:pk>')
