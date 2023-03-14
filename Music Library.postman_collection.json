@@ -60,7 +60,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "    {\r\n        \"release_date\": \"2022-10-20\",\r\n        \"genre\": \"country\",\r\n        \"artist\": \"Tim McGraw\",\r\n        \"album\": \"Here on Earth\",\r\n        \"title\": \"Standing Room Only\"\r\n    }",
+					"raw": "    {\r\n        \"release_date\": \"2022-10-20\",\r\n        \"genre\": \"country\",\r\n        \"artist\": \"Tim McGraw\",\r\n        \"album\": \"Here on Earth\",\r\n        \"title\": \"Standing Room Only\",\r\n        \"like\": 0\r\n    }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -146,6 +146,39 @@
 						"api",
 						"songs",
 						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Like Song",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/songs/7",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"songs",
+						"7"
 					]
 				}
 			},
