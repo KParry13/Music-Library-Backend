@@ -82,6 +82,7 @@ class SongResource(Resource):
     def delete(self, pk):
         song_from_db = Song.query.get_or_404(pk)
         db.session.delete(song_from_db)
+        db.session.commit()
         return '', 204
     
     def put(self, pk):
