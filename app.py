@@ -27,15 +27,16 @@ Migrate(app, db)
 class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
-    artist =db.Column(db.String(200), nullable=False)
+    artist = db.Column(db.String(200), nullable=False)
     album = db.Column(db.String(200), nullable=False)
     release_date = db.Column(db.Date)
     genre = db.Column(db.String(200))
+    running_time = db.Column(db.Integer)
     likes = db.Column(db.Integer,default=0)
 
 
     def __repr__(self):
-        return f'{self.title} {self.artist} {self.album} {self.release_date} {self.genre} {self.likes}'
+        return f'{self.title} {self.artist} {self.album} {self.release_date} {self.genre} {self.running_time} {self.likes}'
 
 # Schemas
 class SongSchema(ma.Schema):
@@ -45,10 +46,11 @@ class SongSchema(ma.Schema):
     album = fields.String(required=True)
     release_date = fields.Date()
     genre = fields.String()
+    running_time = fields.Integer()
     likes = fields.Integer()
 
     class Meta:
-        fields = ("id", "title", "artist", "album", "release_date", "genre", "likes")
+        fields = ("id", "title", "artist", "album", "release_date", "genre", "running_time", "likes")
         
     @post_load
     def create_song(self, data, **kwargs):
@@ -60,8 +62,16 @@ songs_schema = SongSchema(many=True)
 # Resources
 class SongListResource(Resource):
     def get(self):
+        custom_response = {}
         all_songs = Song.query.all()
-        return songs_schema.dump(all_songs), 200
+        custom_response["songs"] = songs_schema.dump(all_songs)
+        total_running_time = 0
+        for song in all_songs:
+            total_running_time += song.running_time
+        custom_response["total_running_time"] = round(total_running_time/60,2)
+                    
+        print(custom_response)
+        return custom_response, 200
 
     def post(self):
         form_data = request.get_json()
@@ -97,6 +107,8 @@ class SongResource(Resource):
             song_from_db.release_date=request.json['release_date']
         if 'genre' in request.json:
             song_from_db.genre=request.json['genre']
+        if 'running_time' in request.json:
+            song_from_db.running_time=request.json['running_time']
         db.session.commit()
         return song_schema.dump(song_from_db), 200
     
