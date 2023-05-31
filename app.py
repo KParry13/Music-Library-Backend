@@ -33,10 +33,11 @@ class Song(db.Model):
     genre = db.Column(db.String(200))
     running_time = db.Column(db.Integer)
     likes = db.Column(db.Integer,default=0)
+    dislikes = db.Column(db.Integer,default=0)
 
 
     def __repr__(self):
-        return f'{self.title} {self.artist} {self.album} {self.release_date} {self.genre} {self.running_time} {self.likes}'
+        return f'{self.title} {self.artist} {self.album} {self.release_date} {self.genre} {self.running_time} {self.likes} {self.dislikes}'
 
 # Schemas
 class SongSchema(ma.Schema):
@@ -48,9 +49,10 @@ class SongSchema(ma.Schema):
     genre = fields.String()
     running_time = fields.Integer()
     likes = fields.Integer()
+    dislikes = fields.Integer()
 
     class Meta:
-        fields = ("id", "title", "artist", "album", "release_date", "genre", "running_time", "likes")
+        fields = ("id", "title", "artist", "album", "release_date", "genre", "running_time", "likes", "dislikes")
         
     @post_load
     def create_song(self, data, **kwargs):
@@ -112,12 +114,20 @@ class SongResource(Resource):
         db.session.commit()
         return song_schema.dump(song_from_db), 200
     
-    def patch(self, pk):
-        song_from_db = Song.query.get_or_404(pk)
+    def patch(self, like):
+        song_from_db = Song.query.get_or_404(like)
         song_from_db.likes += 1
+        db.session.commit()
+        return song_schema.dump(song_from_db), 200
+
+class SongsResource(Resource):
+    def patch(self, dislike):
+        song_from_db = Song.query.get_or_404(dislike)
+        song_from_db.dislikes -= 1
         db.session.commit()
         return song_schema.dump(song_from_db), 200
         
 # Routes
 api.add_resource(SongListResource, '/api/songs')
-api.add_resource(SongResource, '/api/songs/<int:pk>')
+api.add_resource(SongResource, '/api/songs_like/<int:like>')
+api.add_resource(SongsResource, '/api/songs_dislike/<int:dislike>')
